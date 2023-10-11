@@ -93,7 +93,8 @@ public class AggregationServer
     {
         try
         {
-            String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + read("JSON/Data.json");
+            Lamport_Clock.getAndIncrement();
+            String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + "Lamport Clock:" + Lamport_Clock + "\n" + read("JSON/Data.json");
             out.write(response.getBytes());
         }
 
@@ -111,9 +112,10 @@ public class AggregationServer
         //Reads the rest of the content, ignoring HTTP header and turns it into a tasks class
         StringBuilder content = new StringBuilder();
         String line;
-        int contentLength = -1;
-        int messageLamport = -1;
+        int contentLength = 0;
+        int messageLamport = 0;
         boolean headerCheck = true;
+        boolean contentCheck = false;
         boolean lamportCheck = false;
 
         while((line = in.readLine()) != null)
@@ -126,6 +128,7 @@ public class AggregationServer
 
             if(line.startsWith("Content-Length:"))
             {
+                contentCheck = true;
                 contentLength = Integer.parseInt(line.split(":")[1].trim());
             }
 
@@ -136,15 +139,21 @@ public class AggregationServer
             }
         }
 
-        //If the HTTP header doesn't include a lamport clock
+        //If the HTTP header doesn't include a Lamport clock
         if(lamportCheck == false)
         {
             String response = "HTTP/1.1 400 Bad Request\r\n\r\nThe request could not be understood or was missing required parameters.";
             out.write(response.getBytes());
             return;
         }
+        else if(contentCheck == false)
+        {
+            String response = "HTTP/1.1 400 Bad Request\r\n\r\nThe request could not be understood or was missing required parameters.";
+            out.write(response.getBytes());
+            return;
+        }
 
-        //Reads the content based on the content length given
+        //Reads the content based on the content length given - Does not add task into queue if no content
         if(contentLength > 0)
         {
             char[] buffer = new char[contentLength];
@@ -169,7 +178,6 @@ public class AggregationServer
             }
 
             //Adds tasks to queue and order based on lamport clock
-            System.out.println("Lamport Clock: " + messageLamport);
             Tasks tmp = new Tasks(messageLamport, content.toString());
             task_Queue.add(tmp);
 
@@ -181,7 +189,7 @@ public class AggregationServer
             if(f.exists())
             {
                 //Respond to ContentServer
-                String response = "HTTP/1.1 200 OK\r\n\r\n" + Lamport_Clock;
+                String response = "HTTP/1.1 200 OK\r\n\r\n" + Lamport_Clock.get();
                 out.write(response.getBytes());
             }
             else
@@ -189,7 +197,7 @@ public class AggregationServer
                 f.createNewFile();
 
                 //Respond to ContentServer
-                String response = "HTTP/1.1 201 HTTP_CREATED\r\n\r\n" + Lamport_Clock;
+                String response = "HTTP/1.1 201 HTTP_CREATED\r\n\r\n" + Lamport_Clock.get();
                 out.write(response.getBytes());
             }
         }
@@ -293,7 +301,18 @@ public class AggregationServer
 
     public static void main(String args[]) throws IOException
     {
-        AggregationServer AS = new AggregationServer(8000);
+        int portNumber = 4567;
+        if(args.length > 1 || args.length < 0)
+        {
+            System.out.println("Usage: java AggregationServer <port_number> or java AggregationServer (For default port: 4567)");
+        }
+
+        if(args.length == 1)
+        {
+            portNumber = Integer.parseInt(args[0]);
+        }
+
+        AggregationServer AS = new AggregationServer(portNumber);
         AS.start();
     }
 }

@@ -8,14 +8,15 @@ import java.net.Socket;
 public class GETclient {
     public static void main(String[] args)
     {
-        if (args.length != 2)
+        if (args.length != 1)
         {
-            System.out.println("Usage: java GETclient <server_name:port_number> <Station_ID>");
+            System.out.println("Usage: java GETclient <server_name:port_number>");
             return;
         }
 
         String serverURL = args[0];
         int timeout = 0;
+        int Lamport_Clock = 0;
 
         try
         {
@@ -40,7 +41,9 @@ public class GETclient {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String line;
                     boolean headerCheck = true;
+                    boolean Lamport_check = false;
                     StringBuilder content = new StringBuilder();
+                    int tmp_LC;
 
                     //Reads the header to parse status code
                     line = reader.readLine();
@@ -61,7 +64,30 @@ public class GETclient {
                                 }
                                 if(!headerCheck)
                                 {
-                                    content.append(line).append("\n");
+                                    //Code to get Lamport Clock
+                                    if(Lamport_check == false)
+                                    {
+                                        line = reader.readLine();
+                                        tmp_LC = Integer.parseInt(line.split(":")[1]);
+                                        Lamport_check = true;
+
+                                        //Compare with current lamport clock and update it
+                                        if(Lamport_Clock > tmp_LC)
+                                        {
+                                            Lamport_Clock++;
+                                        }
+                                        else
+                                        {
+                                            Lamport_Clock = tmp_LC + 1;
+                                        }
+                                        System.out.println(Lamport_Clock);
+                                    }
+
+                                    //Gets the rest of the content
+                                    else
+                                    {
+                                        content.append(line).append("\n");
+                                    }
                                 }
                             }
 
