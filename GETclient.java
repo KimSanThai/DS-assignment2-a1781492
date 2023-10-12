@@ -43,7 +43,6 @@ public class GETclient {
                     String line;
                     boolean headerCheck = true;
                     StringBuilder content = new StringBuilder();
-                    int tmp_LC;
 
                     //Reads the header to parse status code
                     line = reader.readLine();

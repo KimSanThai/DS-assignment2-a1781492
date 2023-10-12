@@ -193,7 +193,18 @@ public class AggregationServer
                 }
             }
 
-            JSONObject jo = new JSONObject(content.toString());
+            JSONObject jo = new JSONObject();
+            try
+            {
+                jo = new JSONObject(content.toString());
+            }
+            catch(org.json.JSONException e)
+            {
+                String errorResponse = "HTTP/1.1 500 Internal Server Error\r\n\r\nError reading the JSON file.";
+                out.write(errorResponse.getBytes());
+                return;
+            }
+
             int messengerID = Integer.parseInt(jo.get("CSID").toString());
             System.out.println("Recieved message from Content Server: " + messengerID);
 
@@ -353,9 +364,8 @@ public class AggregationServer
         try
         {
             File f = new File(filepath);
-            f.createNewFile();
-
-            if(f.exists())
+            
+            if(!f.createNewFile())
             {
                 File temp = new File("temp.json");
                 temp.createNewFile();

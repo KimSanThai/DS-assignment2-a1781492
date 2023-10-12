@@ -114,12 +114,20 @@ public class ContentServer
                                 responseBody.append(responseLine);
                             }
 
-                            //If recieve No content error message
-                            if(responseCode == 204)
+                            //If recieve No content error message or Error reading JSON file
+                            if(responseCode == 204 | responseCode == 500)
                             {
                                 System.out.println(responseBody);
                                 timeout++;
                                 System.out.println("Retrying in 5 seconds... Retry Number: " + timeout);
+
+                                //If timeout longer than 15 seconds
+                                if (timeout == 3)
+                                {
+                                    System.out.println("File sending failed");
+                                    return;
+                                }
+
                                 Thread.sleep(5000);
                                 break;
                             }
