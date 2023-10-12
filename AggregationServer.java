@@ -22,11 +22,21 @@ public class AggregationServer
     static AtomicInteger Lamport_Clock = new AtomicInteger(0);
     static PriorityBlockingQueue<Tasks> task_Queue = new PriorityBlockingQueue<Tasks>();
     static ConcurrentHashMap<Integer,Long> HeartBeat = new ConcurrentHashMap<Integer,Long>();
+    String LC_filepath = "Lamport-Clocks/AS1.txt";
 
     //Parameterized constructor to take in port number
     AggregationServer(int p)
     {
         port = p;
+
+        //Check if Lamport Clock has been saved before
+        try
+        {
+            LamportCheck(LC_filepath);
+        }
+        catch(Exception e)
+        {
+        }
     }
 
     //Method to start the server
@@ -71,7 +81,7 @@ public class AggregationServer
             //code for GET request
             if(requestLine.startsWith("GET"))
             {
-                GETParser(out);
+                GETParser(in, out);
             }
 
             //Code for PUT request
@@ -92,8 +102,24 @@ public class AggregationServer
     }
 
     //Parses GET request
-    private void GETParser(OutputStream out) throws IOException
+    private void GETParser(BufferedReader in, OutputStream out) throws IOException
     {
+        //parse the rest of the header to check if lamport header is attached, else ignore
+        String requestLine = "";
+        int tmp_LC;
+        while((requestLine = in.readLine()) != null)
+        {
+            if(requestLine.startsWith("Lamport-Clock"));
+            {
+                tmp_LC = Integer.parseInt(requestLine.split(":")[1]);
+                LamportUpdate(tmp_LC);
+                //Save updated lamport to file
+                FileWriter writer = new FileWriter(LC_filepath);
+                writer.write(Integer.toString(Lamport_Clock.get()));
+                writer.close();
+            }
+        }
+
         try
         {
             Vector<JSONObject> tmp = JFileParser("JSON/Data.txt");
@@ -225,6 +251,11 @@ public class AggregationServer
 
             //Updates the lamport clock to send back to Content Server
             LamportUpdate(messageLamport);
+
+            //Save updated lamport to file
+            FileWriter writer = new FileWriter(LC_filepath);
+            writer.write(Integer.toString(Lamport_Clock.get()));
+            writer.close();
 
             //Sends different response based on if Data.txt previously exists
             File f = new File("JSON/Data.txt");
@@ -358,6 +389,8 @@ public class AggregationServer
                             tmp.remove(tmp.size() - 1);
                             RewriteFromVector("JSON/Data.txt", tmp);
                         }
+
+                        Lamport_Clock.getAndIncrement();
                     }
                 }
             }
@@ -453,6 +486,32 @@ public class AggregationServer
         else
         {
             Lamport_Clock.set(messageLamport + 1);
+        }
+    }
+
+    public void LamportCheck(String LC_filepath) throws IOException
+    {
+        //Check if Lamport Clock has been previously saved
+        File f = new File(LC_filepath);
+        
+        if(!f.createNewFile())
+        {
+            String tmp = read(LC_filepath);
+            //Checks if tmp is empty
+            if(tmp.isEmpty())
+            {
+                FileWriter writer = new FileWriter(LC_filepath);
+                writer.write(Integer.toString(AggregationServer.Lamport_Clock.get()));
+                writer.close();
+                tmp = Integer.toString(AggregationServer.Lamport_Clock.get());
+            }
+            AggregationServer.Lamport_Clock.set(Integer.parseInt(tmp));
+        }
+        else
+        {
+            FileWriter writer = new FileWriter(LC_filepath);
+            writer.write(Integer.toString(AggregationServer.Lamport_Clock.get()));
+            writer.close();
         }
     }
 

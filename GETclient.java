@@ -54,7 +54,8 @@ public class GETclient {
                 {
                     //Constructing the GET request
                     String getRequest = "GET / HTTP/1.1\r\n" +
-                                        "Host: UwU" + "\r\n" +
+                                        "Host: UwU" + "\r\n" + 
+                                        "Lamport-Clock:" + Lamport_Clock + "\r\n" +
                                         "\r\n";
 
                     //Get the output stream of the socket
@@ -114,8 +115,7 @@ public class GETclient {
                                 Lamport_Clock = tmp_LC + 1;
                             }
 
-                            //Saves lamport clock to a file
-                            //Save updated lamport
+                            //Save updated lamport to file
                             FileWriter writer = new FileWriter(LC_filepath);
                             writer.write(Integer.toString(Lamport_Clock));
                             writer.close();
