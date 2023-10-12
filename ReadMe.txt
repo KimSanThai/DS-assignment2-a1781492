@@ -39,11 +39,11 @@ It handles errors the same way the content server does including saving the lamp
 
 Usage:
 The code uses an extern org.json library, thus must be compiled with it included. (The file is "json-20230618.jar")
--Use command "javac -cp ./* *.java" to compile
+-Use command "javac -cp .:* *.java" to compile
+Alternatively, the makefile will compile the code using command "make" does not work on windows.
 
 Only the aggregation server uses this library
--Use command "java -cp ".;json-20230618.jar" AggregationServer <port_number>" to run aggregation server for windows.
--Use command "java -cp ".:json-20230618.jar" AggregationServer <port_number>" to run aggregation server for linux.
+-Use command "java -cp ".:json-20230618.jar" AggregationServer <port_number>" to run aggregation server.
 This will start the aggregation server at the specified port
 
 -Use command "java ContentServer <host:port_number> <Data_filepath>" to run the content server
@@ -54,6 +54,46 @@ This will start a connection with the host specified on the port specified and s
 
 
 Test:
-The tests implemented will test the functionality provided in Appendix B of the assignment sheet.
+The tests implemented will test the functionality provided in Appendix B of the assignment sheet. All test to be run after compile (See above).
 
-Test 1: Text sending works
+Test 1: Text sending works/ client, server and content serveer processes start up and communicate/ PUT operation works for one content server
+This test consists of 3 parts which must be run in order. Test1.part1 and Test1.part2 will have to be run concurrently on different terminals.
+But Test1.part3 can be run any time after Test1.part2 is done.
+-Script Test1.part1.sh will delete Data.txt first then start the aggregation server on local host on port 8000.
+-Script Test1.part2.sh will start the content server on localhost on port 8000 and start sending the data in test1.txt (inside JSON folder).
+-Script Test1.part3.sh will start the get client on localhost on port 8000 and send the get request.
+Expected outcome:
+The aggregation server will start listening on port 8000. The content server will then send data from test1.txt which will get written to Data.txt (inside JSON folder).
+Then the get client will send a get request on port 8000 and recieve data from Data.txt (inside JSON folder) sent by the aggregation server.
+If left running, occassionally, Test1.part1 will send warning messages as messages from the content server is sent every 20 seconds and the HeartBeat checks every 15 seconds before deleting files at 30 seconds.
+
+Test 2: GET operation works for many read clientSocket
+TBD
+
+Test 3: Aggregation server expunging expired data works (30s)
+This code will reuse the script from Test 1.
+-Script Test1.part1.sh will delete Data.txt first then start the aggregation server on local host on port 8000.
+-Script Test1.part2.sh will start the content server on localhost on port 8000 and start sending the data in text1.txt (inside JSON folder).
+*Script Test1.part2.sh should be manually closed after data is sent.
+Expected outcome:
+The aggregation server will start listening on port 8000. The content server will then send data from test1.txt which will get written to Data.txt (inside JSON folder).
+The content server should then be closed and the aggregation server will then empty the Data.txt file after 30 seconds of not recieving any messages.
+
+Test 4: Retry on errors (server not available etc) works
+This code will reuse the script from Test 1. Running Test1.part2 or Test1.part3 without running Test1.part1 first will automatically start the retry process.
+The connection will proceed properly if Test1.part1 is run before Test1.part2 or Test1.part3.
+
+Test 5:
+TBD
+
+Test 6: All error codes are implemented
+This test will reuse the script from Test1
+-Script Test1.part1.sh will delete Data.txt first then start the aggregation server on local host on port 8000.
+-Script Test6.sh will then send different curl requests to verify the error codes.
+the curl request are:
+curl -X POST http://localhost:8000 -v (sends a post request - recieve error code 400 bad request)
+curl -X PUT http://localhost:8000 -v -H "Lamport-Clock: 0" -d "" (sends a PUT request with an empty body - recieve error code 204 no content)
+curl -X PUT http://localhost:8000 -v -H "Lamport-Clock: 0" -d "?" (sends a PUT request with the wrong format - recieve error code 500)
+
+Test 7: Content servers are replicated and fault tolerant
+TBD

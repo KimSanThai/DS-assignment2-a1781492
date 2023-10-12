@@ -191,7 +191,7 @@ public class ContentServer
                 }
 
                 //Wait 20 seconds before sending the next message
-                System.out.println("Waiting 20 seconds before sending the next batch of messages.");
+                System.out.println("Waiting 20 seconds before sending the next batch of message(s).");
                 Thread.sleep(20000);
             }
         }

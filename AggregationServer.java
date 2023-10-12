@@ -267,6 +267,14 @@ public class AggregationServer
                     if(Difference == 15000)
                     {
                         System.out.println("Have not recieved message in 15 seconds - Files from Content Server " + value.getKey() + " will be deleted in 15 seconds");
+                        try
+                        {
+                            //To stop while loop from checking if condition before currentTimeMillis gets updated
+                            Thread.sleep(1000);
+                        }
+                        catch(Exception e)
+                        {
+                        }
                     }
                     else if(Difference == 30000)
                     {
