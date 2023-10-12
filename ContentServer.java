@@ -87,6 +87,16 @@ public class ContentServer
                                 responseBody.append(responseLine);
                             }
 
+                            //If recieve No content error message
+                            if(responseCode == 204)
+                            {
+                                System.out.println(responseBody);
+                                timeout++;
+                                System.out.println("Retrying in 5 seconds... Retry Number: " + timeout);
+                                Thread.sleep(5000);
+                                break;
+                            }
+
                             //Get Lamport Clock
                             int tmp_LC = Integer.parseInt(responseBody.toString().trim());
 
@@ -134,6 +144,12 @@ public class ContentServer
                         }
                     }
                 }
+                //Break 1 more time if response Code 204 - No content
+                if(responseCode == 204)
+                {
+                    break;
+                }
+
                 //Wait 20 seconds before sending the next message
                 System.out.println("Waiting 20 seconds before sending the next batch of messages.");
                 Thread.sleep(20000);

@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,8 +9,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Vector;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class AggregationServer
@@ -82,20 +86,13 @@ public class AggregationServer
         out.flush();
     }
 
-    //Function to read in files
-    public String read(String filepath) throws IOException
-    {
-        String file = new String(Files.readAllBytes(Paths.get(filepath)));
-        return file;
-    }
-
     //Parses GET request
     private void GETParser(OutputStream out) throws IOException
     {
         try
         {
-            String content = read("JSON/Data.json");
-            JSONObject jo = new JSONObject(content);
+            Vector<JSONObject> tmp = JFileParser("JSON/Data.txt");
+            JSONObject jo = tmp.get(0);
             jo.remove("CSID");
 
             Lamport_Clock.getAndIncrement();
@@ -183,8 +180,7 @@ public class AggregationServer
 
             JSONObject jo = new JSONObject(content.toString());
             int messengerID = Integer.parseInt(jo.get("CSID").toString());
-            System.out.println("Recieved message from system: " + messengerID);
-            jo.remove("CSID");
+            System.out.println("Recieved message from Content Server: " + messengerID);
 
             //Adds tasks to queue and order based on lamport clock
             Tasks tmp = new Tasks(messageLamport, jo.toString(), messengerID);
@@ -193,8 +189,8 @@ public class AggregationServer
             //Updates the lamport clock to send back to Content Server
             LamportUpdate(messageLamport);
 
-            //Sends different response based on if Data.json previously exists
-            File f = new File("JSON/Data.json");
+            //Sends different response based on if Data.txt previously exists
+            File f = new File("JSON/Data.txt");
             if(f.exists())
             {
                 //Respond to ContentServer
@@ -263,7 +259,16 @@ public class AggregationServer
                     {
                         Tasks Prio_task = AggregationServer.task_Queue.poll();
 
-                        write("JSON/Data.json", Prio_task.content);
+                        //Save messages to file
+                        write("JSON/Data.txt", Prio_task.content);
+
+                        //Check if file has more than 20 JSON objects and rewrites file to fit
+                        Vector<JSONObject> tmp = JFileParser("JSON/Data.txt");
+                        while(tmp.size() > 20)
+                        {
+                            tmp.remove(tmp.size() - 1);
+                            RewriteFromVector("JSON/Data.txt", tmp);
+                        }
                     }
                 }
             }
@@ -285,8 +290,9 @@ public class AggregationServer
             {
                 File temp = new File("temp.json");
                 temp.createNewFile();
-                FileWriter writer = new FileWriter(temp);
-                writer.write(content);
+                FileWriter writer = new FileWriter(temp, true);
+                writer.write(content + "\n");
+                writer.write(read(filepath));
                 writer.close();
                 f.delete();
                 temp.renameTo(new File(filepath));
@@ -295,6 +301,57 @@ public class AggregationServer
         catch(Exception e)
         {
             e.printStackTrace();
+        }
+    }
+
+    //Function to read in files
+    public String read(String filepath) throws IOException
+    {
+        String file = new String(Files.readAllBytes(Paths.get(filepath)));
+        return file;
+    }
+
+    //Function to turn JSON file storage into JSON objects
+    public Vector<JSONObject> JFileParser(String filepath) throws IOException
+    {
+        Vector<JSONObject> temp = new Vector<JSONObject>();
+
+        BufferedReader reader = new BufferedReader(new FileReader(filepath));
+        String line = reader.readLine();
+
+        //Turns each line into a JSONObject and add them to a vector
+        while(line != null)
+        {
+            JSONObject tmp = new JSONObject(line);
+            temp.add(tmp);
+            line = reader.readLine();
+        }
+
+        reader.close();
+        return temp;
+    }
+    
+    //Function to rewrite file if more than 20 JSON
+    public void RewriteFromVector(String filepath, Vector<JSONObject> tmp) throws IOException
+    {
+        File f = new File(filepath);
+        f.createNewFile();
+
+        if(f.exists())
+        {
+            File temp = new File("temp.json");
+            temp.createNewFile();
+            FileWriter writer = new FileWriter(temp, true);
+            
+            //Writes all content of vector into file
+            for(int i = 0; i < tmp.size(); i++)
+            {
+                writer.write(tmp.get(i).toString() + "\n");
+            }
+
+            writer.close();
+            f.delete();
+            temp.renameTo(new File(filepath));
         }
     }
 

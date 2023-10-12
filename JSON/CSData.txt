@@ -1,4 +1,4 @@
-id:IDS60901
+id:1
 name:Adelaide (West Terrace /  ngayirdapira)
 state:SA
 time_zone:CST
@@ -15,7 +15,7 @@ rel_hum:60
 wind_dir:S
 wind_spd_kmh:15
 wind_spd_kt:8
-UwU:IDS60901
+id:2
 name:Adelaide (West Terrace /  ngayirdapira)
 state:SA
 time_zone:CST
@@ -32,7 +32,313 @@ rel_hum:60
 wind_dir:S
 wind_spd_kmh:15
 wind_spd_kt:8
-HEHE:IDS60901
+id:3
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:4
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:5
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:6
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:7
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:8
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:9
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:10
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:11
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:12
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:13
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:14
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:15
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:16
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:17
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:18
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:19
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:20
+name:Adelaide (West Terrace /  ngayirdapira)
+state:SA
+time_zone:CST
+lat:-34.9
+lon:138.6
+local_date_time:15/04:00pm
+local_date_time_full:20230715160000
+air_temp:13.3
+apparent_t:9.5
+cloud:Partly cloudy
+dewpt:5.7
+press:1023.9
+rel_hum:60
+wind_dir:S
+wind_spd_kmh:15
+wind_spd_kt:8
+id:21
 name:Adelaide (West Terrace /  ngayirdapira)
 state:SA
 time_zone:CST
