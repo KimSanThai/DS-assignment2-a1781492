@@ -104,22 +104,6 @@ public class AggregationServer
     //Parses GET request
     private void GETParser(BufferedReader in, OutputStream out) throws IOException
     {
-        //parse the rest of the header to check if lamport header is attached, else ignore
-        String requestLine = "";
-        int tmp_LC;
-        while((requestLine = in.readLine()) != null)
-        {
-            if(requestLine.startsWith("Lamport-Clock"));
-            {
-                tmp_LC = Integer.parseInt(requestLine.split(":")[1]);
-                LamportUpdate(tmp_LC);
-                //Save updated lamport to file
-                FileWriter writer = new FileWriter(LC_filepath);
-                writer.write(Integer.toString(Lamport_Clock.get()));
-                writer.close();
-            }
-        }
-
         try
         {
             Vector<JSONObject> tmp = JFileParser("JSON/Data.txt");
@@ -139,6 +123,27 @@ public class AggregationServer
             Lamport_Clock.getAndIncrement();
             String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + jo.toString();
             out.write(response.getBytes());
+
+            //parse the rest of the header to check if lamport header is attached, else ignore
+            String requestLine;
+            int tmp_LC;
+            while((requestLine = in.readLine()) != null)
+            {
+                if(requestLine.startsWith("Lamport-Clock:"))
+                {
+                    tmp_LC = Integer.parseInt(requestLine.split(":")[1]);
+                    LamportUpdate(tmp_LC);
+                    //Save updated lamport to file
+                    FileWriter writer = new FileWriter(LC_filepath);
+                    writer.write(Integer.toString(Lamport_Clock.get()));
+                    writer.close();
+                    break;
+                }
+                if(requestLine.isEmpty())
+                {
+                    break;
+                }
+            }
             return;
         }
 
