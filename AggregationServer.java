@@ -9,11 +9,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class AggregationServer
@@ -22,6 +22,7 @@ public class AggregationServer
     static AtomicInteger ClientID = new AtomicInteger(1);
     static AtomicInteger Lamport_Clock = new AtomicInteger(0);
     static PriorityBlockingQueue<Tasks> task_Queue = new PriorityBlockingQueue<Tasks>();
+    static ConcurrentHashMap<Integer,Long> HeartBeat = new ConcurrentHashMap<Integer,Long>();
 
     //Parameterized constructor to take in port number
     AggregationServer(int p)
@@ -36,8 +37,13 @@ public class AggregationServer
         {
             System.out.println("HTTP Server listening on port " + port);
 
+            //Handles tasks inside queue
             QueueHandler QH = new QueueHandler();
             QH.start();
+
+            //Checks if data is old
+            HeartBeat HB = new HeartBeat();
+            HB.start();
 
             while (true)
             {
@@ -92,12 +98,21 @@ public class AggregationServer
         try
         {
             Vector<JSONObject> tmp = JFileParser("JSON/Data.txt");
+
+            if(tmp.size() == 0)
+            {
+                String response = "HTTP/1.1 204 No Content\r\n\r\nNo content recieved.";
+                out.write(response.getBytes());
+                return;
+            }
+
             JSONObject jo = tmp.get(0);
             jo.remove("CSID");
 
             Lamport_Clock.getAndIncrement();
             String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + "Lamport Clock:" + Lamport_Clock + "\n" + jo.toString();
             out.write(response.getBytes());
+            return;
         }
 
         catch (IOException | org.json.JSONException e)
@@ -186,6 +201,16 @@ public class AggregationServer
             Tasks tmp = new Tasks(messageLamport, jo.toString(), messengerID);
             task_Queue.add(tmp);
 
+            //Adds time recieved to HeartBeat
+            if(HeartBeat.containsKey(messengerID))
+            {
+                HeartBeat.replace(messengerID, System.currentTimeMillis());
+            }
+            else
+            {
+                HeartBeat.put(messengerID, System.currentTimeMillis());
+            }
+
             //Updates the lamport clock to send back to Content Server
             LamportUpdate(messageLamport);
 
@@ -213,6 +238,50 @@ public class AggregationServer
             String response = "HTTP/1.1 204 No Content\r\n\r\nNo content recieved";
             out.write(response.getBytes());
             return;
+        }
+    }
+
+    //HeartBeat class to check how old file is
+    public class HeartBeat extends Thread
+    {
+        @Override
+        public void run()
+        {
+            while(true)
+            {
+                for(Map.Entry<Integer, Long> value : AggregationServer.HeartBeat.entrySet())
+                {
+                    Long Difference = System.currentTimeMillis() - value.getValue();
+                    if(Difference == 15000)
+                    {
+                        System.out.println("Have not recieved message in 15 seconds - Files from Content Server " + value.getKey() + " will be deleted in 15 seconds");
+                    }
+                    else if(Difference == 30000)
+                    {
+                        System.out.println("Have not recieved message in 30 seconds - Files from Content Server " + value.getKey() + " will be deleted");
+                        try
+                        {
+                            Vector<JSONObject> tmp = JFileParser("JSON/Data.txt");
+                            for(int i = tmp.size()-1; i >= 0; i--)
+                            {
+                                if(Integer.parseInt(tmp.get(i).get("CSID").toString()) == value.getKey())
+                                {
+                                    tmp.remove(i);
+                                }
+                            }
+
+                            //Remove data from txt file
+                            RewriteFromVector("JSON/Data.txt", tmp);
+
+                            //Remove client from HeartBeat Hash Map
+                            AggregationServer.HeartBeat.remove(value.getKey());
+                        }
+                        catch (IOException e)
+                        {
+                        }
+                    }
+                }
+            }
         }
     }
 
