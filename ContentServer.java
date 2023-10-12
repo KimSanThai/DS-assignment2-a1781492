@@ -28,12 +28,12 @@ public class ContentServer
 
         try
         {
-            Vector<String> data = JSONreader(filepath);
+            Vector<String> data = JSONreader(filepath, 1);
 
             while (true)
             {
                 System.out.println("Number of JSON objects to send: " + data.size());
-                
+
                 for (int i = 0; i < data.size(); i++)
                 {
                     //Create a socket connection to the AggregationServer
@@ -143,7 +143,7 @@ public class ContentServer
     }
 
     //Read data and turn into JSON format
-    public static Vector<String> JSONreader(String filepath) throws IOException
+    public static Vector<String> JSONreader(String filepath, int CSID) throws IOException
     {
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath)))
         {
@@ -183,7 +183,7 @@ public class ContentServer
                     if(key.equals("wind_spd_kt"))
                     {
                         //piggy-back Content Server ID onto JSON data
-                        jsonString.insert(0,"\"CSID\":1,");
+                        jsonString.insert(0,"\"CSID\":" + "\"" + CSID + "\",");
                         
                         //Remove the trailing comma and wrap the JSON object
                         jsonString.deleteCharAt(jsonString.length() - 1);

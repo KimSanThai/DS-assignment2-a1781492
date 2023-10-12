@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.json.JSONObject;
 
 public class AggregationServer
 {
@@ -93,16 +94,20 @@ public class AggregationServer
     {
         try
         {
+            String content = read("JSON/Data.json");
+            JSONObject jo = new JSONObject(content);
+            jo.remove("CSID");
+
             Lamport_Clock.getAndIncrement();
-            String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + "Lamport Clock:" + Lamport_Clock + "\n" + read("JSON/Data.json");
+            String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + "Lamport Clock:" + Lamport_Clock + "\n" + jo.toString();
             out.write(response.getBytes());
         }
 
-        catch (IOException e)
+        catch (IOException | org.json.JSONException e)
         {
-            e.printStackTrace();
             String errorResponse = "HTTP/1.1 500 Internal Server Error\r\n\r\nError reading the JSON file.";
             out.write(errorResponse.getBytes());
+            return;
         }
     }
 
@@ -174,7 +179,6 @@ public class AggregationServer
                     }
                     content.append(buffer, 0, bytesRead);
                 }
-                content.append("}");
             }
 
             //Adds tasks to queue and order based on lamport clock
@@ -191,6 +195,7 @@ public class AggregationServer
                 //Respond to ContentServer
                 String response = "HTTP/1.1 200 OK\r\n\r\n" + Lamport_Clock.get();
                 out.write(response.getBytes());
+                return;
             }
             else
             {
@@ -199,12 +204,14 @@ public class AggregationServer
                 //Respond to ContentServer
                 String response = "HTTP/1.1 201 HTTP_CREATED\r\n\r\n" + Lamport_Clock.get();
                 out.write(response.getBytes());
+                return;
             }
         }
         else
         {
             String response = "HTTP/1.1 204 No Content\r\n\r\nNo content recieved";
             out.write(response.getBytes());
+            return;
         }
     }
 
