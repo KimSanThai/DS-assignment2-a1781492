@@ -181,8 +181,13 @@ public class AggregationServer
                 }
             }
 
+            JSONObject jo = new JSONObject(content.toString());
+            int messengerID = Integer.parseInt(jo.get("CSID").toString());
+            System.out.println("Recieved message from system: " + messengerID);
+            jo.remove("CSID");
+
             //Adds tasks to queue and order based on lamport clock
-            Tasks tmp = new Tasks(messageLamport, content.toString());
+            Tasks tmp = new Tasks(messageLamport, jo.toString(), messengerID);
             task_Queue.add(tmp);
 
             //Updates the lamport clock to send back to Content Server

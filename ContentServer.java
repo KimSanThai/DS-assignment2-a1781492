@@ -30,104 +30,108 @@ public class ContentServer
         {
             Vector<String> data = JSONreader(filepath, 1);
 
-            while (true)
+            while(true)
             {
                 System.out.println("Number of JSON objects to send: " + data.size());
 
                 for (int i = 0; i < data.size(); i++)
                 {
-                    //Create a socket connection to the AggregationServer
-                    try (Socket socket = argumentParser(serverURL))
+                    while(true)
                     {
-                        //Get the output stream of the socket
-                        OutputStream os = socket.getOutputStream();
-
-                        //Set a timeout for the socket (15 seconds)
-                        socket.setSoTimeout(15000);
-                        
-                        //Read data to be sent from file
-                        String requestBody = data.get(i);
-
-                        //Construct the PUT request
-                        String request = "PUT / HTTP/1.1\r\n"
-                                + "Content-Length: " + requestBody.length() + "\r\n"
-                                + "Lamport-Clock: " + Lamport_Clock + "\r\n"
-                                + "\r\n"
-                                + requestBody;
-
-                        //Convert the request to bytes and send it
-                        byte[] requestBytes = request.getBytes(StandardCharsets.UTF_8);
-                        os.write(requestBytes);
-                        os.flush();
-
-                        //Increment Lamport Clock
-                        Lamport_Clock = Lamport_Clock + 1;
-
-                        //Get the input stream to read the response
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        String responseLine = reader.readLine();
-                        StringBuilder responseBody = new StringBuilder();
-                        if (responseLine != null)
+                        //Create a socket connection to the AggregationServer
+                        try (Socket socket = argumentParser(serverURL))
                         {
-                            responseCode = Integer.parseInt(responseLine.split(" ")[1]);
-                            System.out.println("Response Code: " + responseCode);
+                            //Get the output stream of the socket
+                            OutputStream os = socket.getOutputStream();
 
-                            if (responseLine.isEmpty())
-                            {
-                                //Empty line indicates the end of headers
-                                break;
-                            }   
-                        }
+                            //Set a timeout for the socket (15 seconds)
+                            socket.setSoTimeout(15000);
+                            
+                            //Read data to be sent from file
+                            String requestBody = data.get(i);
 
-                        //Reads rest of body
-                        while ((responseLine = reader.readLine()) != null)
-                        {
-                            responseBody.append(responseLine);
-                        }
+                            //Construct the PUT request
+                            String request = "PUT / HTTP/1.1\r\n"
+                                    + "Content-Length: " + requestBody.length() + "\r\n"
+                                    + "Lamport-Clock: " + Lamport_Clock + "\r\n"
+                                    + "\r\n"
+                                    + requestBody;
 
-                        //Get Lamport Clock
-                        int tmp_LC = Integer.parseInt(responseBody.toString().trim());
+                            //Convert the request to bytes and send it
+                            byte[] requestBytes = request.getBytes(StandardCharsets.UTF_8);
+                            os.write(requestBytes);
+                            os.flush();
 
-                        //Lamport comparison and update CS LC
-                        if(Lamport_Clock > tmp_LC)
-                        {
+                            //Increment Lamport Clock
                             Lamport_Clock = Lamport_Clock + 1;
-                        }
-                        else
-                        {
-                            Lamport_Clock = tmp_LC + 1;
-                        }
 
-                        //If response code is 200, wait for 20 seconds before sending the next PUT request
-                        if (responseCode == 200 || responseCode == 201)
-                        {
-                            //Reset the timeout counter
-                            timeout = 0;
-                            System.out.println("Success!");
-                            //Short sleep before sending other content from file
-                            Thread.sleep(1000);
-                        }
-                        else
-                        {
-                            System.out.println("Response Code: " + responseCode);
-                            break;
-                        }
-                    }
-                    catch (java.net.SocketTimeoutException | ConnectException e)
-                    {
-                        //If no response or connection issue, retry every 5 seconds
-                        System.out.println("No response received or connection issue. Retrying in 5 seconds...");
-                        timeout++;
-                        System.out.println("Retry number: " + timeout);
+                            //Get the input stream to read the response
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                            String responseLine = reader.readLine();
+                            StringBuilder responseBody = new StringBuilder();
+                            if (responseLine != null)
+                            {
+                                responseCode = Integer.parseInt(responseLine.split(" ")[1]);
+                                System.out.println("Response Code: " + responseCode);
 
-                        //If 3 consecutive timeouts occur, exit
-                        if (timeout == 3)
-                        {
-                            System.out.println("Unable to connect to server");
-                            return;
-                        }
+                                if (responseLine.isEmpty())
+                                {
+                                    //Empty line indicates the end of headers
+                                    break;
+                                }   
+                            }
 
-                        Thread.sleep(5000);
+                            //Reads rest of body
+                            while ((responseLine = reader.readLine()) != null)
+                            {
+                                responseBody.append(responseLine);
+                            }
+
+                            //Get Lamport Clock
+                            int tmp_LC = Integer.parseInt(responseBody.toString().trim());
+
+                            //Lamport comparison and update CS LC
+                            if(Lamport_Clock > tmp_LC)
+                            {
+                                Lamport_Clock = Lamport_Clock + 1;
+                            }
+                            else
+                            {
+                                Lamport_Clock = tmp_LC + 1;
+                            }
+
+                            //If response code is 200, wait for 20 seconds before sending the next PUT request
+                            if (responseCode == 200 || responseCode == 201)
+                            {
+                                //Reset the timeout counter
+                                timeout = 0;
+                                System.out.println("Success!");
+                                //Short sleep before sending other content from file
+                                Thread.sleep(1000);
+                                break;
+                            }
+                            else
+                            {
+                                System.out.println("Response Code: " + responseCode);
+                                break;
+                            }
+                        }
+                        catch (java.net.SocketTimeoutException | ConnectException e)
+                        {
+                            //If no response or connection issue, retry every 5 seconds
+                            System.out.println("No response received or connection issue. Retrying in 5 seconds...");
+                            timeout++;
+                            System.out.println("Retry number: " + timeout);
+
+                            //If 3 consecutive timeouts occur, exit
+                            if (timeout == 3)
+                            {
+                                System.out.println("Unable to connect to server");
+                                return;
+                            }
+
+                            Thread.sleep(5000);
+                        }
                     }
                 }
                 //Wait 20 seconds before sending the next message
