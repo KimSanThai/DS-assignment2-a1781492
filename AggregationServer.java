@@ -531,9 +531,13 @@ public class AggregationServer
         if(args.length == 1)
         {
             portNumber = Integer.parseInt(args[0]);
+            AggregationServer AS = new AggregationServer(portNumber);
+            AS.start();
         }
-
-        AggregationServer AS = new AggregationServer(portNumber);
-        AS.start();
+        else if(args.length == 0)
+        {
+            AggregationServer AS = new AggregationServer(4567);
+            AS.start();
+        }
     }
 }
