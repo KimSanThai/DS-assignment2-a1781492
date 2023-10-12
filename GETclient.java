@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -18,6 +20,31 @@ public class GETclient {
 
         String serverURL = args[0];
         int timeout = 0;
+        int Lamport_Clock = 0;
+        String LC_filepath = "Lamport-Clocks/GC1.txt";
+
+        //Check if lamport clock is saved before
+        File f = new File(LC_filepath);
+        
+        if(!f.createNewFile())
+        {
+            String tmp = read(LC_filepath);
+            //Checks if tmp is empty
+            if(tmp.isEmpty())
+            {
+                FileWriter writer = new FileWriter(LC_filepath);
+                writer.write(Integer.toString(Lamport_Clock));
+                writer.close();
+                tmp = Integer.toString(Lamport_Clock);
+            }
+            Lamport_Clock = Integer.parseInt(tmp);
+        }
+        else
+        {
+            FileWriter writer = new FileWriter(LC_filepath);
+            writer.write(Integer.toString(Lamport_Clock));
+            writer.close();
+        }
 
         try
         {
@@ -37,12 +64,14 @@ public class GETclient {
                     byte[] getRequestBytes = getRequest.getBytes();
                     os.write(getRequestBytes);
                     os.flush();
+                    Lamport_Clock++;
 
                     //Get the input stream to read the response
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    String line;
+                    String line = "";
                     boolean headerCheck = true;
                     StringBuilder content = new StringBuilder();
+                    int tmp_LC = 0;
 
                     //Reads the header to parse status code
                     line = reader.readLine();
@@ -63,9 +92,33 @@ public class GETclient {
                                 }
                                 if(!headerCheck)
                                 {
-                                    content.append(line).append("\n");
+                                    //Takes Lamport Clock off the JSON data
+                                    if(line.startsWith("Lamport Clock:"))
+                                    {
+                                        tmp_LC = Integer.parseInt(line.split(":")[1]);
+                                    }
+                                    else
+                                    {
+                                        content.append(line).append("\n");
+                                    }
                                 }
                             }
+
+                            //Update lamport clock
+                            if(Lamport_Clock > tmp_LC)
+                            {
+                                Lamport_Clock = Lamport_Clock + 1;
+                            }
+                            else
+                            {
+                                Lamport_Clock = tmp_LC + 1;
+                            }
+
+                            //Saves lamport clock to a file
+                            //Save updated lamport
+                            FileWriter writer = new FileWriter(LC_filepath);
+                            writer.write(Integer.toString(Lamport_Clock));
+                            writer.close();
 
                             System.out.println("Content:" + content);
                             return;

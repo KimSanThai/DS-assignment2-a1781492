@@ -19,7 +19,6 @@ import org.json.JSONObject;
 public class AggregationServer
 {
     static int port = 4567;
-    static AtomicInteger ClientID = new AtomicInteger(1);
     static AtomicInteger Lamport_Clock = new AtomicInteger(0);
     static PriorityBlockingQueue<Tasks> task_Queue = new PriorityBlockingQueue<Tasks>();
     static ConcurrentHashMap<Integer,Long> HeartBeat = new ConcurrentHashMap<Integer,Long>();
@@ -107,6 +106,8 @@ public class AggregationServer
             }
 
             JSONObject jo = tmp.get(0);
+            //Add lamport clock and remove CSID
+            jo.append("Lamport Clock",Lamport_Clock.get());
             jo.remove("CSID");
 
             Lamport_Clock.getAndIncrement();

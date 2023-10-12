@@ -1,6 +1,4 @@
-import java.io.Serializable;
-
-public class Tasks implements Serializable, Comparable<Tasks>
+public class Tasks implements Comparable<Tasks>
 {
     public Integer logicalClock = 0;
     public String content;
