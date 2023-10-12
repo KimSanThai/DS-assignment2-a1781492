@@ -110,7 +110,7 @@ public class AggregationServer
             jo.remove("CSID");
 
             Lamport_Clock.getAndIncrement();
-            String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + "Lamport Clock:" + Lamport_Clock + "\n" + jo.toString();
+            String response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" + jo.toString();
             out.write(response.getBytes());
             return;
         }

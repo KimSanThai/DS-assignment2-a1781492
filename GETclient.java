@@ -4,9 +4,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class GETclient {
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
         if (args.length != 1)
         {
@@ -16,7 +18,6 @@ public class GETclient {
 
         String serverURL = args[0];
         int timeout = 0;
-        int Lamport_Clock = 0;
 
         try
         {
@@ -41,7 +42,6 @@ public class GETclient {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String line;
                     boolean headerCheck = true;
-                    boolean Lamport_check = false;
                     StringBuilder content = new StringBuilder();
                     int tmp_LC;
 
@@ -64,30 +64,7 @@ public class GETclient {
                                 }
                                 if(!headerCheck)
                                 {
-                                    //Code to get Lamport Clock
-                                    if(Lamport_check == false)
-                                    {
-                                        line = reader.readLine();
-                                        tmp_LC = Integer.parseInt(line.split(":")[1]);
-                                        Lamport_check = true;
-
-                                        //Compare with current lamport clock and update it
-                                        if(Lamport_Clock > tmp_LC)
-                                        {
-                                            Lamport_Clock++;
-                                        }
-                                        else
-                                        {
-                                            Lamport_Clock = tmp_LC + 1;
-                                        }
-                                        System.out.println(Lamport_Clock);
-                                    }
-
-                                    //Gets the rest of the content
-                                    else
-                                    {
-                                        content.append(line).append("\n");
-                                    }
+                                    content.append(line).append("\n");
                                 }
                             }
 
@@ -129,6 +106,13 @@ public class GETclient {
         {
             e.printStackTrace();
         }
+    }
+
+    //Function to read in files
+    public static String read(String filepath) throws IOException
+    {
+        String file = new String(Files.readAllBytes(Paths.get(filepath)));
+        return file;
     }
 
     //Parse the argument 0 from the terminal into host and port number then returns socket with those parameters

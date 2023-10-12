@@ -1,16 +1,19 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.ConnectException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 public class ContentServer
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
         if (args.length != 2)
         {
@@ -20,11 +23,35 @@ public class ContentServer
 
         String serverURL = args[0];
         String filepath = args[1];
+        String LC_filepath = "Lamport-Clocks/CS1.txt";
 
         //Initialize timeout counter and lamport clock and response Code
         int timeout = 0;
-        int Lamport_Clock = 0;
         int responseCode = 0;
+        int Lamport_Clock = 0;
+
+        //Check if lamport clock is saved before
+        File f = new File(LC_filepath);
+        
+        if(!f.createNewFile())
+        {
+            String tmp = read(LC_filepath);
+            //Checks if tmp is empty
+            if(tmp.isEmpty())
+            {
+                FileWriter writer = new FileWriter(LC_filepath);
+                writer.write(Integer.toString(Lamport_Clock));
+                writer.close();
+                tmp = Integer.toString(Lamport_Clock);
+            }
+            Lamport_Clock = Integer.parseInt(tmp);
+        }
+        else
+        {
+            FileWriter writer = new FileWriter(LC_filepath);
+            writer.write(Integer.toString(Lamport_Clock));
+            writer.close();
+        }
 
         try
         {
@@ -110,6 +137,11 @@ public class ContentServer
                                 Lamport_Clock = tmp_LC + 1;
                             }
 
+                            //Save updated lamport
+                            FileWriter writer = new FileWriter(LC_filepath);
+                            writer.write(Integer.toString(Lamport_Clock));
+                            writer.close();
+
                             //If response code is 200, wait for 20 seconds before sending the next PUT request
                             if (responseCode == 200 || responseCode == 201)
                             {
@@ -126,7 +158,7 @@ public class ContentServer
                                 break;
                             }
                         }
-                        catch (java.net.SocketTimeoutException | ConnectException e)
+                        catch (java.net.SocketTimeoutException | java.net.SocketException e)
                         {
                             //If no response or connection issue, retry every 5 seconds
                             System.out.println("No response received or connection issue. Retrying in 5 seconds...");
@@ -223,7 +255,12 @@ public class ContentServer
         }
     }
 
-    
+    //Function to read in files
+    public static String read(String filepath) throws IOException
+    {
+        String file = new String(Files.readAllBytes(Paths.get(filepath)));
+        return file;
+    }
 
     //Parse the argument 0 from the terminal into host and port number then returns socket with those parameters
     private static Socket argumentParser(String serverURL) throws IOException
