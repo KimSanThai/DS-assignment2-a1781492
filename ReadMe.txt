@@ -36,6 +36,15 @@ GET client:
 The GET client just sends the aggregation server a get request and recieves messages back.
 It handles errors the same way the content server does including saving the lamport clock in a file.
 
+**PIGGYBACKING OF REQUESTS sent from servers and GET client
+-Aggregation server: responses with code 200 and 201 have the aggregation server's lamport clock attached.
+For PUT response - the lamport clock is attached in the content body.
+For GET response - the lamport clock is piggy-backed onto the json object.
+-Content server: the lamport clock here is piggy-backed onto the http header with a new header called "Lamport-Clock"
+Thus this makes standard PUT request unsuitable for the aggregation server and will return error code 400 Bad Request.
+-GET client - the lamport clock here is also implemented the same way as the content server (placed into the HTTP header with a new header called "Lamport-Clock")
+But the aggregation server parse it in a way such that it can still process standard HTTP get requests.
+
 
 Usage:
 The code uses an extern org.json library, thus must be compiled with it included. (The file is "json-20230618.jar")
