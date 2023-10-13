@@ -64,7 +64,7 @@ public class AggregationServer
             }
         }
 
-        catch (IOException e)
+        catch(IOException e)
         {
             e.printStackTrace();
         }
@@ -76,7 +76,7 @@ public class AggregationServer
         System.out.println("Received Request: " + requestLine);
 
         //Check if it's a GET request
-        if (requestLine != null)
+        if(requestLine != null)
         {
             //code for GET request
             if(requestLine.startsWith("GET"))
@@ -95,10 +95,9 @@ public class AggregationServer
             {
                 String response = "HTTP/1.1 400 Bad Request\r\n\r\nThe request could not be understood or was missing required parameters.";
                 out.write(response.getBytes());
+                out.flush();
             }
         }
-
-        out.flush();
     }
 
     //Parses GET request
@@ -358,7 +357,7 @@ public class AggregationServer
             try
             (
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                OutputStream out = clientSocket.getOutputStream()
+                OutputStream out = clientSocket.getOutputStream();
             )
             {
                 RequestHandler(in, out);

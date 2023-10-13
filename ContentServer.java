@@ -24,6 +24,7 @@ public class ContentServer
         String serverURL = args[0];
         String filepath = args[1];
         String LC_filepath = "Lamport-Clocks/CS1.txt";
+        int CSID = 1;
 
         //Initialize timeout counter and lamport clock and response Code
         int timeout = 0;
@@ -55,7 +56,7 @@ public class ContentServer
 
         try
         {
-            Vector<String> data = JSONreader(filepath, 1);
+            Vector<String> data = JSONreader(filepath, CSID);
 
             while(true)
             {
