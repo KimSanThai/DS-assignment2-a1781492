@@ -36,6 +36,15 @@ GET client:
 The GET client just sends the aggregation server a get request and recieves messages back.
 It handles errors the same way the content server does including saving the lamport clock in a file.
 
+**PIGGYBACKING OF REQUESTS sent from servers and GET client
+-Aggregation server: responses with code 200 and 201 have the aggregation server's lamport clock attached.
+For PUT response - the lamport clock is attached in the content body.
+For GET response - the lamport clock is piggy-backed onto the json object.
+-Content server: the lamport clock here is piggy-backed onto the http header with a new header called "Lamport-Clock"
+Thus this makes standard PUT request unsuitable for the aggregation server and will return error code 400 Bad Request.
+-GET client - the lamport clock here is also implemented the same way as the content server (placed into the HTTP header with a new header called "Lamport-Clock")
+But the aggregation server parse it in a way such that it can still process standard HTTP get requests.
+
 
 Usage:
 The code uses an extern org.json library, thus must be compiled with it included. (The file is "json-20230618.jar")
@@ -113,5 +122,5 @@ curl -X PUT http://localhost:8000 -v -H "Lamport-Clock: 0" -d "?" (sends a PUT r
 Test 7: Content servers are replicated and fault tolerant
 For content server, fault tolerance is shown test 4 (The retry test) (This also applies to the get client). Additionally, the lamport clocks are saved in a local file so that is persistant even through crashes (This applies to all server and client).
 
-*All the content server scripts can be modified to send data from CSData.txt (inside JSON folder) instead which will cause the content server to send 21 PUT request (there are 21 sets of json objects in the file). This is for stress testing the aggregation server and content server.
-Alternatively, the content server files can be duplicated and modified (by changing the CSID sent to the aggregation server) to simulate running different content server and sending content to the same aggregation server.
+**All the content server scripts can be modified to send data from CSData.txt (inside JSON folder) instead which will cause the content server to send 21 PUT request (there are 21 sets of json objects in the file). This is for stress testing the aggregation server and content server. Aggregation server will only store the latest 20 PUT request regardless of content server ID.
+Alternatively, the content server files can be duplicated and modified (by changing the CSID on line 27 to change the content server id being sent to the aggregation server) to simulate running different content servers sending content to the same aggregation server.
